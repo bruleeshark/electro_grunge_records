@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>c:/electro_grunge/launch.exe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="20" fill="black" stroke="gold" stroke-width="2"/><rect x="6" y="6" width="20" height="4" fill="gold"/><rect x="14" y="12" width="4" height="8" fill="gold"/><circle cx="10" cy="16" r="1" fill="gold"/><circle cx="22" cy="16" r="1" fill="gold"/></svg>'), auto;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000000;
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .terminal-header {
+            background: #1a1a1a;
+            border-bottom: 2px solid #ffd700;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .terminal-text {
+            color: #ffd700;
+            font-size: 0.9rem;
+        }
+
+        .blinking-cursor::after {
+            content: '█';
+            animation: blink 1s infinite;
+            color: #ffd700;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .presentation-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px 20px;
+        }
+
+        .slide {
+            background: #000000;
+            border: 2px solid #ffd700;
+            border-radius: 0;
+            padding: 60px;
+            margin: 40px 0;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ffd700, transparent);
+            animation: scan 3s ease-in-out infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .slide::after {
+            content: '💾';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            opacity: 0.3;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #ffffff;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            margin: 25px 0 15px 0;
+            color: #ffd700;
+            text-transform: uppercase;
+            font-family: 'Courier New', monospace;
+        }
+
+        p, li {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+        }
+
+        .code-block {
+            background: #1a1a1a;
+            border: 1px solid #ffd700;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            color: #ffd700;
+            border-radius: 0;
+        }
+
+        .tokenomics-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .flow-step {
+            background: #1a1a1a;
+            border: 2px solid #ffd700;
+            border-radius: 0;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .flow-step:hover {
+            background: #2a2a2a;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .flow-step h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .flow-step p {
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        .community-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .community-item {
+            background: #1a1a1a;
+            border: 2px solid #ffffff;
+            border-radius: 0;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .community-item:hover {
+            background: #2a2a2a;
+            border-color: #ffd700;
+        }
+
+        .community-item h3 {
+            color: #ffd700;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .highlight-box {
+            background: #1a1a1a;
+            border: 2px solid #ffd700;
+            border-radius: 0;
+            padding: 30px;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .highlight-box h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .founder-section {
+            background: #1a1a1a;
+            border: 2px solid #ffffff;
+            border-radius: 0;
+            padding: 40px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .founder-section h3 {
+            color: #ffd700;
+            font-size: 2.2rem;
+            margin: 15px 0;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 50px;
+            background: #1a1a1a;
+            border: 3px solid #ffd700;
+            border-radius: 0;
+            margin-top: 40px;
+            position: relative;
+        }
+
+        .cta-section::before {
+            content: '';
+        }
+
+        .divider {
+            height: 2px;
+            background: #ffd700;
+            margin: 30px 0;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .music-genre-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .genre-tag {
+            background: #000000;
+            border: 2px solid #ffffff;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 0;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .genre-tag:hover {
+            background: #ffd700;
+            color: #000000;
+        }
+
+        .meme-gif {
+            max-width: 200px;
+            max-height: 150px;
+            border: 2px solid #ffd700;
+            margin: 10px;
+            border-radius: 0;
+        }
+
+        .gif-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .email-highlight {
+            background: #ffd700;
+            color: #000000;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            border-radius: 0;
+        }
+
+        .ticker-symbol {
+            font-size: 2rem;
+            color: #ffd700;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .slide { padding: 30px; }
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 2rem; }
+            .tokenomics-flow { grid-template-columns: 1fr; }
+            .meme-gif { max-width: 150px; max-height: 100px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal-header">
+        <div class="terminal-text">
+            C:\electro_grunge\> launch.exe --investor-pitch <span class="blinking-cursor"></span>
+        </div>
+    </div>
+
+    <div class="presentation-container">
+        
+        <!-- Title Slide -->
+        <div class="slide">
+            <h1>ELECTRO GRUNGE RECORDS</h1>
+            <div class="divider"></div>
+            <h2>Token-Powered Underground Empire</h2>
+            <div class="music-genre-tags">
+                <span class="genre-tag">Grunge</span>
+                <span class="genre-tag">EDM</span>
+                <span class="genre-tag">Punk</span>
+                <span class="genre-tag">BASS</span>
+            </div>
+            <p style="font-size: 1.4rem; text-align: center; margin-top: 30px; color: #ffd700;">
+                Where community becomes currency and chaos becomes culture
+            </p>
+            <div class="code-block">
+                Ticker: <span class="ticker-symbol">$💾</span><br>
+                Name: Electro Grunge Records<br>
+                Supply: 100.0
+            </div>
+        </div>
+
+        <!-- Founder Slide -->
+        <div class="slide">
+            <div class="founder-section">
+                <h2>Meet the Architect</h2>
+                <h3>Cache Crash</h3>
+                <p style="font-size: 1.2rem; color: #ffd700; text-align: center;">
+                    DJ-Producer • Founder & CEO
+                </p>
+                <div class="divider"></div>
+                <p style="text-align: center;">Artist on the label, community builder, and digital culture architect creating the next wave of music industry disruption</p>
+            </div>
+            <div class="gif-container">
+                <img src="https://media1.tenor.com/m/0AHQ_wwFWW8AAAAd/anime-dog.gif" alt="Anime girl" class="meme-gif">
+                <img src="https://media1.tenor.com/m/PNC1O6QYxFkAAAAd/flupwi-grunge.gif" alt="Grunge aesthetic" class="meme-gif">
+            </div>
+        </div>
+
+        <!-- The Vision -->
+        <div class="slide">
+            <h2>The Underground Revolution</h2>
+            <div class="highlight-box">
+                <h3>Breaking the Industry</h3>
+                <p>Traditional labels extract value from artists and fans. We're flipping the script - when the label wins, the community wins. When the community thrives, the label explodes.</p>
+            </div>
+            
+            <h3>Our Sound Universe</h3>
+            <p>• Guitar-centric heavy vibes that hit different</p>
+            <p>• Grunge meets EDM meets pure sonic chaos</p>
+            <p>• Fashion brand extension with punk aesthetic</p>
+            <p>• No fluffy pop sunshine bullshit - only raw energy</p>
+
+            <div class="gif-container">
+                <img src="https://media1.tenor.com/m/4g64075cmV8AAAAd/kurt-cobain-nirvana.gif" alt="Kurt Cobain" class="meme-gif">
+                <img src="https://media1.tenor.com/m/D6OfKLOVtlgAAAAd/grunge-nirvana.gif" alt="Grunge aesthetic" class="meme-gif">
+            </div>
+        </div>
+
+        <!-- Tokenomics Model -->
+        <div class="slide">
+            <h2>The Token Engine</h2>
+            <div class="tokenomics-flow">
+                <div class="flow-step">
+                    <h3>Revenue Sharing</h3>
+                    <p>When label income > $1000 per month, 50% added to liquidity pool</p>
+                </div>
+                <div class="flow-step">
+                    <h3>USDC Locked Liquidity Pool</h3>
+                    <p>Token/USDC locked liquidity ensures price stability and tradability</p>
+                </div>
+                <div class="flow-step">
+                    <h3>Community Rewards</h3>
+                    <p>Holders get exclusive access, merch discounts, concert perks</p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>The Feedback Loop of Chaos</h3>
+                <p>Token holders become fans, or fans become token holders → They stream music, come to concerts, buy merch → More revenue generated → Token value rises → More people become aware of token → Cycle amplifies exponentially</p>
+            </div>
+
+            <div class="code-block">
+                if (monthly_revenue > 1000) {
+                    liquidity_pool += revenue * 0.5;
+                    token_value.pump();
+                }
+            </div>
+        </div>
+
+        <!-- Community & Psychology -->
+        <div class="slide">
+            <h2>Digital Tribalism Strategy</h2>
+            
+            <h3>Entitativity in Action</h3>
+            <p>Using sociology to create deep tribal belonging - fans don't just listen, they become part of the underground movement.</p>
+            
+            <div class="community-grid">
+                <div class="community-item">
+                    <h3>Stream & Earn</h3>
+                    <p>Every play increases token value</p>
+                </div>
+                <div class="community-item">
+                    <h3>Fashion Rebellion</h3>
+                    <p>Grunge/punk merch brand extension</p>
+                </div>
+                <div class="community-item">
+                    <h3>Concert Culture</h3>
+                    <p>Exclusive shows for token holders</p>
+                </div>
+                <div class="community-item">
+                    <h3>Digital Identity</h3>
+                    <p>Milady energy meets music culture</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h3>Psychology of Belonging</h3>
+                <p>We're not selling music - we're selling identity, belonging, and the feeling of being part of something that matters. The token becomes a badge of membership in the underground.</p>
+            </div>
+
+            <div class="gif-container">
+                <img src="https://media1.tenor.com/m/49TTWtU3210AAAAd/rally-protest.gif" alt="Rally protest" class="meme-gif">
+                <img src="https://media.tenor.com/OyUjTZ-KhvUAAAAj/pepe-hacker-hacker-man.gif" alt="Pepe hacker" class="meme-gif">
+            </div>
+        </div>
+
+        <!-- Business Model -->
+        <div class="slide">
+            <h2>Revenue Streams</h2>
+            
+            <h3>Primary Income Sources</h3>
+            <p>• Music streaming & sales revenue</p>
+            <p>• Concert & live event ticket sales</p>
+            <p>• Fashion brand merchandise (grunge/punk aesthetic)</p>
+            <p>• Exclusive token holder experiences</p>
+            <p>• Brand partnerships aligned with underground culture</p>
+            
+            <div class="highlight-box">
+                <h3>C Corp Structure</h3>
+                <p>Professional entity structure enabling traditional investment while maintaining token utility and community ownership principles.</p>
+            </div>
+
+            <div class="gif-container">
+                <img src="https://media1.tenor.com/m/J8o7AxtZiwgAAAAd/www-web.gif" alt="Floppy disk tech" class="meme-gif">
+                <img src="https://media1.tenor.com/m/Gh_r0QwBC8EAAAAd/monero-xmr.gif" alt="Monero crypto" class="meme-gif">
+            </div>
+        </div>
+
+        <!-- Market Opportunity -->
+        <div class="slide">
+            <h2>The Market We're Capturing</h2>
+            
+            <h3>Underserved Audiences</h3>
+            <p>• Gen Z & millennials craving authentic community</p>
+            <p>• Crypto-native music fans seeking utility</p>
+            <p>• Alternative/grunge/EDM crossover market</p>
+            <p>• Fashion-conscious music subcultures</p>
+            <p>• The disillusioned working class</p>
+            <p>• Nihilistic cypherpunk trench warriors</p>
+            
+            <div class="highlight-box">
+                <h3>Competitive Advantage</h3>
+                <p>First-mover in token-enabled music industry economies of scale with diversified consumer facing income streams and social psychology based community engagement strategies.</p>
+            </div>
+
+            <div class="gif-container">
+                <img src="https://media.tenor.com/H5QOMmvXnWYAAAAj/meowl-meme.gif" alt="Meme coins" class="meme-gif">
+                <img src="https://media1.tenor.com/m/IiKgieo02YsAAAAd/evil-vitalik-ethereum-bad.gif" alt="Vitalik meme" class="meme-gif">
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="slide">
+            <div class="cta-section">
+                <h2>SEED ROUND OPPORTUNITY</h2>
+                <div class="divider"></div>
+                <p style="font-size: 1.4rem; margin: 50px 0 30px;">
+                    Ready to disrupt the music industry with us?
+                </p>
+                <p style="font-size: 1.2rem; color: #ffd700; margin-bottom: 30px;">
+                    Token holders don't just invest in music - they invest in culture, community, and the future of underground rebellion.
+                </p>
+                <div class="highlight-box">
+                    <h3>Qualified Investors</h3>
+                    <p>Contact us about our seed round:</p>
+                    <p style="font-size: 1rem; margin-top: 20px;">
+                        <span class="email-highlight">electrogrungerecords@gmail.com</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="gif-container">
+                <img src="https://media.tenor.com/qnbiM5SsOnwAAAAj/cute-girl-hand-heart.gif" alt="Cute girl heart" class="meme-gif">
+                <img src="https://media1.tenor.com/m/YgkVaFS6lF8AAAAd/mami-nanami-dance.gif" alt="Anime dance" class="meme-gif">
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

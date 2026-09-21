@@ -645,50 +645,51 @@
     </div>
 
     <!-- CTA -->
-    <div class="slide">
-        <div class="cta-section">
-            <h2>SEED ROUND</h2>
-            <div class="divider"></div>
-            <p style="font-size:1.4rem;margin:40px 0 20px;color:#ffd700;">
-                Token holders don't just invest in music.<br>They invest in culture, community, and the future of underground music infrastructure.
-            </p>
-            <p style="font-size:1rem;color:#aaa;margin-bottom:30px;font-family:'Courier New',monospace;">
-                Delaware C-corp · Ethereum mainnet · Curve protocol · scrvUSD pair · veCRV accumulation strategy<br>
-                CLARITY Act vote: September 15, 2026 — watch this space
-            </p>
+    <!-- Interactive Seed Round Slide -->
+<div class="slide">
+    <div class="cta-section">
+        <h2>SEED ROUND PARTICIPATION</h2>
+        <div class="divider"></div>
+        <p style="font-size:1.1rem;color:#ffd700;margin-bottom:20px;">
+            10.0 💾 allocated for Strategic Partners & Seed Investors
+        </p>
 
-            <div class="highlight-box" style="text-align:left;">
-                <h3>How To Get 💾</h3>
-                <p>🗺️ <strong>Earthdrop</strong> — follow @cachecrash on Instagram/TikTok/Twitter for IRL drop locations across LA<br>
-                💼 <strong>Advisors / Seed</strong> — 10.0 💾 available for strategic partners<br>
-                🎵 <strong>Artists</strong> — sign to EGR and receive your allocation on day one of your contract<br>
-                🏊 <strong>LP</strong> — add liquidity to the 💾/scrvUSD pool on Curve once deployed</p>
-            </div>
-
-            <div class="highlight-box" style="text-align:center;margin-top:20px;">
-                <h3>Contact</h3>
-                <p><span class="email-highlight">electrogrungerecords@gmail.com</span></p>
-                <p style="margin-top:15px;color:#aaa;font-family:'Courier New',monospace;font-size:0.85rem;">
-                    contract address: [post-deploy]<br>
-                    pool address: [post-deploy]<br>
-                    etherscan: [post-deploy]
-                </p>
+        <!-- Progress Tracker -->
+        <div class="highlight-box" style="text-align:left;">
+            <h3>// SEED ROUND STATUS</h3>
+            <div class="alloc-row">
+                <div class="alloc-label">
+                    <span>RAISED: <span id="ico-raised-text">0.00 / 10.00 💾</span></span>
+                    <span id="ico-progress-pct">0%</span>
+                </div>
+                <div class="alloc-bar-bg">
+                    <div id="ico-progress-bar" class="alloc-bar-fill" style="width: 0%; background: #00ff94;"></div>
+                </div>
             </div>
         </div>
 
-        <div class="gif-container">
-            <img src="https://media.tenor.com/qnbiM5SsOnwAAAAj/cute-girl-hand-heart.gif" alt="Heart" class="meme-gif">
-            <img src="https://media1.tenor.com/m/YgkVaFS6lF8AAAAd/mami-nanami-dance.gif" alt="Anime dance" class="meme-gif">
-        </div>
+        <!-- Buy Interface -->
+        <div class="highlight-box" style="text-align:center; max-width: 600px; margin: 30px auto;">
+            <h3>// PARTICIPATE NOW</h3>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="number" id="buy-amount-input" placeholder="Amount in crvUSD" 
+                        style="flex: 1; padding: 12px; background: #000; border: 1px solid #ffd700; color: #fff; font-family: 'Courier New', monospace;" 
+                        oninput="calculateTokens(this.value)">
+                    <span style="font-family: 'Courier New', monospace; color: #ffd700;">crvUSD</span>
+                </div>
 
-        <div style="text-align:center;margin-top:30px;font-family:'Courier New',monospace;color:#333;font-size:0.8rem;">
-            the protocol runs whether or not anyone is watching.<br>
-            the treasury compounds. the pension accrues.<br>
-            the contract does not care about the release schedule.<br><br>
-            C:\electro_grunge\> _
+                <div style="font-family: 'Courier New', monospace; font-size: 0.9rem; color: #888; text-align: left;">
+                    Est. Receive: <span id="est-tokens" style="color: #00ff94;">0.0000</span> 💾
+                </div>
+
+                <button id="buy-btn" onclick="executeTokenPurchase()" 
+                    style="background: #ffd700; color: #000; font-family: 'Courier New', monospace; font-weight: bold; padding: 14px; border: none; cursor: pointer; text-transform: uppercase;">
+                    [ 1. Approve crvUSD ]
+                </button>
+            </div>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -762,7 +763,84 @@ function hideWalletPanel() {
     document.getElementById("wallet-panel").style.display = "none";
 }
 
+// ICO / Seed Round Config
+const ICO_CONFIG = {
+    SALE_CONTRACT_ADDRESS: "0x...", // Deployed Sale Contract Address
+    PAYMENT_TOKEN_ADDRESS: "0x...", // crvUSD or USDC Address
+    TOKEN_PRICE_CRVUSD: 100,        // Cost per 1 💾 token in crvUSD
+};
 
+let currentAllowance = 0n;
+
+function calculateTokens(val) {
+    const amount = parseFloat(val) || 0;
+    const tokens = amount / ICO_CONFIG.TOKEN_PRICE_CRVUSD;
+    document.getElementById("est-tokens").textContent = tokens.toFixed(4);
+}
+
+async function executeTokenPurchase() {
+    if (!window.ethereum) {
+        alert("Please connect a Web3 wallet first.");
+        return;
+    }
+
+    const accounts = await window.ethereum.request({ method: "eth_accounts" });
+    if (!accounts.length) {
+        await connectWallet();
+        return;
+    }
+
+    const userAddr = accounts[0];
+    const buyVal = document.getElementById("buy-amount-input").value;
+    if (!buyVal || buyVal <= 0) {
+        alert("Enter a valid amount.");
+        return;
+    }
+
+    const paymentAmount = BigInt(Math.floor(buyVal * 1e18)).toString(16).padStart(64, "0");
+    const buyBtn = document.getElementById("buy-btn");
+
+    try {
+        // Step 1: Check / Approve Token Allowance
+        buyBtn.textContent = "[ Processing Approval... ]";
+        
+        // approve(address spender, uint256 amount) selector: 0x095ea7b3
+        const approveData = "0x095ea7b3" + 
+            ICO_CONFIG.SALE_CONTRACT_ADDRESS.slice(2).padStart(64, "0") + 
+            paymentAmount;
+
+        const approveTx = await window.ethereum.request({
+            method: "eth_sendTransaction",
+            params: [{
+                from: userAddr,
+                to: ICO_CONFIG.PAYMENT_TOKEN_ADDRESS,
+                data: approveData
+            }]
+        });
+
+        buyBtn.textContent = "[ 2. Execute Purchase ]";
+
+        // Step 2: Call buyTokens(uint256 paymentAmount) selector: 0xd2ef5e22
+        const buyData = "0xd2ef5e22" + paymentAmount;
+
+        const buyTx = await window.ethereum.request({
+            method: "eth_sendTransaction",
+            params: [{
+                from: userAddr,
+                to: ICO_CONFIG.SALE_CONTRACT_ADDRESS,
+                data: buyData
+            }]
+        });
+
+        alert("Transaction submitted! Hash: " + buyTx);
+        buyBtn.textContent = "[ Purchase Complete ]";
+    } catch (err) {
+        console.error(err);
+        alert("Transaction failed or rejected.");
+        buyBtn.textContent = "[ 1. Approve & Purchase ]";
+    }
+}
+    
 // ═══════════════════════════════════════════════════════════════════
 // ██  ADMIN CONFIG — edit these before each deploy  ██
 // ═══════════════════════════════════════════════════════════════════
